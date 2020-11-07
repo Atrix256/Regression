@@ -4,6 +4,7 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="model1.cpp" />
     <ClCompile Include="utils.cpp" />
+    <ClCompile Include="model2.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="utils.h" />

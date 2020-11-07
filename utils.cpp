@@ -42,19 +42,20 @@ bool LoadCSV(const char* fileName, CSV& csv)
 
     // read the file data in and close the file
     fseek(file, 0, SEEK_END);
-    std::vector<char> fileData(ftell(file));
+    std::vector<char> fileData(ftell(file) + 1, 0);  // don't forget space for null terminator
     fseek(file, 0, SEEK_SET);
     fread(fileData.data(), fileData.size(), 1, file);
     fclose(file);
 
     // parse the file
-    const char* start = fileData.data();
+    const char* cursor = fileData.data();
     std::string nextToken;
     bool EOL = false;
     bool didHeaders = false;
     bool lastTokenWasEOL = false;
-    while (GetNextToken(start, nextToken, EOL))
+    while (*cursor)
     {
+        GetNextToken(cursor, nextToken, EOL);
         if (lastTokenWasEOL)
             csv.data.resize(csv.data.size() + 1);
 

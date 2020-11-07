@@ -4,9 +4,9 @@
 
 Model 1:
 
-f(x) = C
+f() = C
 
-where C is a constant.  C is the mean sales.
+C is a constant.  C is the mean sales.
 
 */
 
@@ -22,41 +22,30 @@ void Model1(const CSV& train, const CSV& test)
     }
 
     // calculate average sales from training data
-    float averageSales = 0.0f;
-    int index = 0;
+    Average averageSales;
     for (const auto& row : train.data)
-    {
-        index++;
-        averageSales = Lerp(averageSales, row[salesIndex], 1.0f / float(index));
-    }
+        averageSales.AddSample(row[salesIndex]);
 
     // calculate mean squared error (average squared error) and root mean squared error from training data
-    float Train_MSE = 0.0f;
-    index = 0;
+    Average Train_MSE;
     for (const auto& row : train.data)
     {
-        index++;
-        float error = row[salesIndex] - averageSales;
-        error *= error;
-        Train_MSE = Lerp(Train_MSE, error, 1.0f / float(index));
+        float error = row[salesIndex] - averageSales.average;
+        Train_MSE.AddSample(error * error);
     }
-    float Train_RMSE = sqrtf(Train_MSE);
-
+    float Train_RMSE = sqrtf(Train_MSE.average);
 
     // calculate mean squared error (average squared error) and root mean squared error from test data
-    float Test_MSE = 0.0f;
-    index = 0;
+    Average Test_MSE;
     for (const auto& row : test.data)
     {
-        index++;
-        float error = row[salesIndex] - averageSales;
-        error *= error;
-        Test_MSE = Lerp(Test_MSE, error, 1.0f / float(index));
+        float error = row[salesIndex] - averageSales.average;
+        Test_MSE.AddSample(error * error);
     }
-    float Test_RMSE = sqrtf(Test_MSE);
+    float Test_RMSE = sqrtf(Test_MSE.average);
 
     // report results
-    printf("  Mean of Item_Outlet_Sales: %0.2f\n", averageSales);
+    printf("  Mean of Item_Outlet_Sales: %0.2f\n", averageSales.average);
     printf("  RMSE on training set: %0.2f\n", Train_RMSE);
     printf("  RMSE on test set: %0.2f\n\n", Test_RMSE);
 }
