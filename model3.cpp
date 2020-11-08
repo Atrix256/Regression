@@ -25,6 +25,34 @@ static const size_t c_gradientDescentSteps = 100;
 // how many times should it pick a random set of parameters and do gradient descent?
 static const size_t c_population = 100;
 
+inline float sqr(float x)
+{
+    return x * x;
+}
+
+template <size_t N>
+float RSquared(const std::array<float, N + 1>& coefficients, const CSV& data, const std::array<int, N>& columnIndices, int valueIndex)
+{
+    Average averageSales;
+    for (const auto& row : data.data)
+        averageSales.AddSample(row[valueIndex]);
+
+    float numerator = 0.0f;
+    float denominator = 0.0f;
+    for (const auto& row : data.data)
+    {
+        float actual = row[valueIndex];
+
+        float estimate = coefficients[N];
+        for (size_t index = 0; index < N; ++index)
+            estimate += row[columnIndices[index]] * coefficients[index];
+
+        numerator += sqr(actual - estimate);
+        denominator += sqr(actual - averageSales.average);
+    }
+
+    return 1.0f - numerator / denominator;
+}
 
 template <size_t N>
 float LossFunction(const std::array<float, N + 1>& coefficients, const CSV& data, const std::array<int, N>& columnIndices, int valueIndex)
@@ -93,7 +121,7 @@ void Model3(const CSV& train, const CSV& test)
     }
 
     // do gradient descent
-
+    // NOTE: this does the same random numbers every program run, so is deterministic, as written.
     std::mt19937 rng;
     std::uniform_real_distribution<float> dist(-50.0f, 50.0f);
     std::array<int, 2> columnIndices = { yearIndex, MRPIndex };
@@ -107,7 +135,6 @@ void Model3(const CSV& train, const CSV& test)
     for (size_t populationIndex = 0; populationIndex < c_population; ++populationIndex)
     {
         // random initialize some starting coefficients
-        // NOTE: this does the same random numbers every time, so is deterministic, as written.
         std::array<float, 3> coefficients;
         for (float& f : coefficients)
             f = dist(rng);
@@ -151,6 +178,7 @@ void Model3(const CSV& train, const CSV& test)
 
     // Report results
     printf("  Best coefficients = %0.4f, %0.4f, %0.4f  (from %zu:%zu)\n", bestCoefficients[0], bestCoefficients[1], bestCoefficients[2], bestCoefficientsPopulationIndex, bestCoefficientsStepIndex);
+    printf("  test/train R^2 = %f  %f\n", RSquared(bestCoefficients, test, columnIndices, salesIndex), RSquared(bestCoefficients, train, columnIndices, salesIndex));
     printf("  RMSE on training set: %0.2f\n", Train_RMSE);
     printf("  RMSE on test set: %0.2f\n\n", Test_RMSE);
 }

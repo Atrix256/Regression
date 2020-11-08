@@ -45,5 +45,6 @@ BLOG:
 * Loss function is MSE/2. the 2 doesn't change anything, but whatever :P
 *  actually, we'll use RMSE to make smaller magnitude numbers for the same result. less to worry about w/ floating point though.
 * get gradient numerically with central differences
+* talk about R^2
 
 */
