@@ -20,6 +20,7 @@ int main(int argc, char** argv)
     Model1(train, test);
     Model2(train, test);
     Model3(train, test);
+    Model4(train, test);
 
     return 0;
 }
@@ -45,6 +46,8 @@ BLOG:
 * Loss function is MSE/2. the 2 doesn't change anything, but whatever :P
 *  actually, we'll use RMSE to make smaller magnitude numbers for the same result. less to worry about w/ floating point though.
 * get gradient numerically with central differences
-* talk about R^2
+* talk about R^2 and adjusted R^2
+
+* Model4 - same, but adding item_weight. didn't seem to help much?
 
 */

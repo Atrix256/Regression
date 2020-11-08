@@ -9,6 +9,11 @@ inline float Lerp(float A, float B, float t)
     return A * (1.0f - t) + B * t;
 }
 
+inline float sqr(float x)
+{
+    return x * x;
+}
+
 struct CSV
 {
     std::vector<std::string> headers;
@@ -44,3 +49,4 @@ bool LoadCSV(const char* fileName, CSV& csv);
 void Model1(const CSV& train, const CSV& test);
 void Model2(const CSV& train, const CSV& test);
 void Model3(const CSV& train, const CSV& test);
+void Model4(const CSV& train, const CSV& test);

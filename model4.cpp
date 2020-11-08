@@ -1,22 +1,22 @@
 #include "utils.h"
 #include "linearfit.h"
-#include <array>
 #include <random>
 
 /*
 
-Model 3:
+Model 4:
 
-f(x,y) = Ax + By + C
+f(x,y) = Ax + By + Cz + D
 
-x and y are establishment year and MRP (price)
-A, B and C are coefficients that were learned through gradient descent.
+x and y are establishment year, MRP (price) and item weight
+A, B, C and D are coefficients that were learned through gradient descent.
 
 */
 
-void Model3(const CSV& train, const CSV& test)
+
+void Model4(const CSV& train, const CSV& test)
 {
-    printf(__FUNCTION__ "() - Linear fit of Item_Outlet_Sales based on Outlet_Establishment_Year and Item_MRP\n");
+    printf(__FUNCTION__ "() - Linear fit of Item_Outlet_Sales based on Outlet_Establishment_Year, Item_MRP and Item_Weight\n");
 
     // get the columns of interest
     int salesIndex = train.GetHeaderIndex("Item_Outlet_Sales");
@@ -40,14 +40,21 @@ void Model3(const CSV& train, const CSV& test)
         return;
     }
 
+    int WeightIndex = train.GetHeaderIndex("Item_Weight");
+    if (WeightIndex == -1 || test.GetHeaderIndex("Item_Weight") != WeightIndex)
+    {
+        printf("Couldn't find Item_Weight column.\n");
+        return;
+    }
+
     // do gradient descent
     // NOTE: this does the same random numbers every program run, so is deterministic, as written.
     std::mt19937 rng;
     std::uniform_real_distribution<float> dist(-50.0f, 50.0f);
-    std::array<int, 2> columnIndices = { yearIndex, MRPIndex };
+    std::array<int, 3> columnIndices = { yearIndex, MRPIndex, WeightIndex };
 
     float bestLoss = FLT_MAX;
-    std::array<float, 3> bestCoefficients;
+    std::array<float, 4> bestCoefficients;
     size_t bestCoefficientsPopulationIndex = 0;
     size_t bestCoefficientsStepIndex = 0;
 
@@ -55,7 +62,7 @@ void Model3(const CSV& train, const CSV& test)
     for (size_t populationIndex = 0; populationIndex < c_population; ++populationIndex)
     {
         // random initialize some starting coefficients
-        std::array<float, 3> coefficients;
+        std::array<float, 4> coefficients;
         for (float& f : coefficients)
             f = dist(rng);
 
@@ -73,7 +80,7 @@ void Model3(const CSV& train, const CSV& test)
         for (int i = 0; i < c_gradientDescentSteps; ++i)
         {
             // calculate the gradient
-            std::array<float, 3> gradient;
+            std::array<float, 4> gradient;
             CalculateGradient(gradient, coefficients, train, columnIndices, salesIndex);
 
             // descend
@@ -97,9 +104,10 @@ void Model3(const CSV& train, const CSV& test)
     float Test_RMSE = LossFunction(bestCoefficients, test, columnIndices, salesIndex);
 
     // Report results
-    printf("  Best coefficients = %0.4f, %0.4f, %0.4f  (from %zu:%zu)\n", bestCoefficients[0], bestCoefficients[1], bestCoefficients[2], bestCoefficientsPopulationIndex, bestCoefficientsStepIndex);
+    printf("  Best coefficients = %0.4f, %0.4f, %0.4f, %0.4f  (from %zu:%zu)\n", bestCoefficients[0], bestCoefficients[1], bestCoefficients[2], bestCoefficients[3], bestCoefficientsPopulationIndex, bestCoefficientsStepIndex);
     printf("  test/train R^2 = %f  %f\n", RSquared(bestCoefficients, test, columnIndices, salesIndex), RSquared(bestCoefficients, train, columnIndices, salesIndex));
     printf("  test/train Adjusted R^2 = %f  %f\n", AdjustedRSquared(bestCoefficients, test, columnIndices, salesIndex), AdjustedRSquared(bestCoefficients, train, columnIndices, salesIndex));
     printf("  RMSE on training set: %0.2f\n", Train_RMSE);
     printf("  RMSE on test set: %0.2f\n\n", Test_RMSE);
 }
+
