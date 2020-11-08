@@ -2,7 +2,7 @@
 
 /*
 
-Model 1:
+Model 2:
 
 f(x) = C
 
@@ -13,8 +13,9 @@ C is a constant.  C is the mean sales for that location type
 
 void Model2(const CSV& train, const CSV& test)
 {
+    printf(__FUNCTION__ "() - use mean sales per Outlet_Location_Type as a prediction\n");
+
     // get the columns of interest
-    printf(__FUNCTION__ "() - use mean sales as a prediction\n");
     int salesIndex = train.GetHeaderIndex("Item_Outlet_Sales");
     if (salesIndex == -1 || test.GetHeaderIndex("Item_Outlet_Sales") != salesIndex)
     {

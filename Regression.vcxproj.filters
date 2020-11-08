@@ -5,6 +5,7 @@
     <ClCompile Include="model1.cpp" />
     <ClCompile Include="utils.cpp" />
     <ClCompile Include="model2.cpp" />
+    <ClCompile Include="model3.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="utils.h" />

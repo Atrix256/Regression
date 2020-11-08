@@ -12,8 +12,9 @@ C is a constant.  C is the mean sales.
 
 void Model1(const CSV& train, const CSV& test)
 {
-    // find out which column is the sales
     printf(__FUNCTION__ "() - use mean sales as a prediction\n");
+
+    // find out which column is the sales
     int salesIndex = train.GetHeaderIndex("Item_Outlet_Sales");
     if (salesIndex == -1 || test.GetHeaderIndex("Item_Outlet_Sales") != salesIndex)
     {
