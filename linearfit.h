@@ -3,18 +3,6 @@
 #include <array>
 #include "utils.h"
 
-// This is for central differences, for calculating the gradient
-static const float c_epsilon = 0.01f;
-
-// The learning rate, for gradient descent
-static const float c_learningRate = 0.001f;
-
-// how many steps of gradient descent are done
-static const size_t c_gradientDescentSteps = 100;
-
-// how many times should it pick a random set of parameters and do gradient descent?
-static const size_t c_population = 100;
-
 template <size_t N>
 float RSquared(const std::array<float, N + 1>& coefficients, const CSV& data, const std::array<int, N>& columnIndices, int valueIndex)
 {
@@ -43,12 +31,12 @@ template <size_t N>
 float AdjustedRSquared(const std::array<float, N + 1>& coefficients, const CSV& data, const std::array<int, N>& columnIndices, int valueIndex)
 {
     int predictorCount = int(N);
-    int totalPredictorCount = (int)data.headers.size() - 1; // 1 is the "value Index" so should be ignored
+    int numSamples = (int)data.data.size();
 
     float rsquared = RSquared(coefficients, data, columnIndices, valueIndex);
     
-    float numerator = (1.0f - rsquared) * float(totalPredictorCount - 1);
-    float denominator = float(totalPredictorCount - predictorCount - 1);
+    float numerator = (1.0f - rsquared) * float(numSamples - 1);
+    float denominator = float(numSamples - predictorCount - 1);
 
     return 1.0f - numerator / denominator;
 }

@@ -21,6 +21,7 @@ int main(int argc, char** argv)
     Model2(train, test);
     Model3(train, test);
     Model4(train, test);
+    Model5(train, test);
 
     return 0;
 }
@@ -49,5 +50,10 @@ BLOG:
 * talk about R^2 and adjusted R^2
 
 * Model4 - same, but adding item_weight. didn't seem to help much?
+
+* Model5 - all items. the article talks about one hot encoding. it looks like the data already has that. if you have an enum, it turns it into a bool per item.
+* adjusted R squared went down... means the model got more complex w/o benefit.
+* lots slower! could probably be optimized.
+* fit isn't as good. it seems to want to go deeper (step count) instead of wider (population)
 
 */
