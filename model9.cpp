@@ -10,6 +10,10 @@ static const size_t c_gradientDescentSteps = 1000;
 // how many times should it pick a random set of parameters and do gradient descent?
 static const size_t c_population = 100;
 
+// L2 regularization alpha value
+static const double c_L1RegAlpha = 100000.0f;
+static const double c_L2RegAlpha = 0.0f;
+
 #include "utils.h"
 #include "quadraticfit.h"
 #include <array>
@@ -17,18 +21,20 @@ static const size_t c_population = 100;
 
 /*
 
-Model 6:
+Model 9:  Model 6 with lasso (L1) regression
 
 f(x,y) = Ax^2 + Bx + Cy^2 + Dy + E
 
 x and y are establishment year and MRP (price)
 A, B, C, D and E are coefficients that were learned through gradient descent.
 
+Ridge regression (L2 regression) means the square of the coefficients times an alpha is added into the MSE to promote smaller coefficients
+
 */
 
-void Model6(const CSV& train, const CSV& test)
+void Model9(const CSV& train, const CSV& test)
 {
-    printf(__FUNCTION__ "() - Quadratic fit of Item_Outlet_Sales based on Outlet_Establishment_Year and Item_MRP\n");
+    printf(__FUNCTION__ "() - Quadratic fit of Item_Outlet_Sales based on Outlet_Establishment_Year and Item_MRP, with Lasso (L1) Reg\n");
 
     // get the columns of interest
     int salesIndex = train.GetHeaderIndex("Item_Outlet_Sales");
@@ -72,7 +78,7 @@ void Model6(const CSV& train, const CSV& test)
             f = dist(rng);
 
         // keep the best coefficients seen
-        double loss = LossFunction(coefficients, train, columnIndices, salesIndex, 0.0f, 0.0f);
+        double loss = LossFunction(coefficients, train, columnIndices, salesIndex, c_L1RegAlpha, c_L2RegAlpha);
         if (loss < bestLoss)
         {
             bestLoss = loss;
@@ -86,7 +92,7 @@ void Model6(const CSV& train, const CSV& test)
         {
             // calculate the gradient
             std::array<double, 5> gradient;
-            CalculateGradient(gradient, coefficients, train, columnIndices, salesIndex, 0.0f, 0.0f);
+            CalculateGradient(gradient, coefficients, train, columnIndices, salesIndex, c_L1RegAlpha, c_L2RegAlpha);
 
             // do gradient descent with an adaptive learning rate to make sure it isn't increasing the loss function
             bool newLossWasLarger = false;
@@ -99,7 +105,7 @@ void Model6(const CSV& train, const CSV& test)
                     newCoefficients[index] = coefficients[index] - gradient[index] * c_learningRate;
 
                 // keep the best coefficients seen
-                newLoss = LossFunction(newCoefficients, train, columnIndices, salesIndex, 0.0f, 0.0f);
+                newLoss = LossFunction(newCoefficients, train, columnIndices, salesIndex, c_L1RegAlpha, c_L2RegAlpha);
                 if (newLoss >= loss)
                 {
                     c_learningRate /= 10.0f;
@@ -124,8 +130,8 @@ void Model6(const CSV& train, const CSV& test)
     }
 
     // calculate mean squared error (average squared error) and root mean squared error from training data
-    double Train_MSE = LossFunction(bestCoefficients, train, columnIndices, salesIndex, 0.0f, 0.0f);
-    double Test_MSE = LossFunction(bestCoefficients, test, columnIndices, salesIndex, 0.0f, 0.0f);
+    double Train_MSE = LossFunction(bestCoefficients, train, columnIndices, salesIndex, c_L1RegAlpha, c_L2RegAlpha);
+    double Test_MSE = LossFunction(bestCoefficients, test, columnIndices, salesIndex, c_L1RegAlpha, c_L2RegAlpha);
 
     // Report results
     printf("  Best coefficients are from %zu:%zu\n", bestCoefficientsPopulationIndex, bestCoefficientsStepIndex);

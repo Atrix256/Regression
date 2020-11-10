@@ -53,7 +53,7 @@ double AdjustedRSquared(const std::array<double, N * 2 + 1>& coefficients, const
 }
 
 template <size_t N>
-double LossFunction(const std::array<double, N * 2 + 1>& coefficients, const CSV& data, const std::array<int, N>& columnIndices, int valueIndex)
+double LossFunction(const std::array<double, N * 2 + 1>& coefficients, const CSV& data, const std::array<int, N>& columnIndices, int valueIndex, float L1RegAlpha, float L2RegAlpha)
 {
     Average MSE;
 
@@ -61,18 +61,26 @@ double LossFunction(const std::array<double, N * 2 + 1>& coefficients, const CSV
     {
         double estimate = Evaluate(coefficients, row, columnIndices);
 
+        double L1RegSum = 0.0f;
+        double L2RegSum = 0.0f;
+        for (double f : coefficients)
+        {
+            L1RegSum += abs(f);
+            L2RegSum += f * f;
+        }
+
         double actual = row[valueIndex];
 
         double error = estimate - actual;
 
-        MSE.AddSample(error * error);
+        MSE.AddSample(error * error + L1RegSum * L1RegAlpha + L2RegSum * L2RegAlpha);
     }
 
     return MSE.average;
 }
 
 template <size_t N>
-void CalculateGradient(std::array<double, N * 2 + 1>& gradient, const std::array<double, N * 2 + 1>& _coefficients, const CSV& data, const std::array<int, N>& columnIndices, int valueIndex)
+void CalculateGradient(std::array<double, N * 2 + 1>& gradient, const std::array<double, N * 2 + 1>& _coefficients, const CSV& data, const std::array<int, N>& columnIndices, int valueIndex, float L1RegAlpha, float L2RegAlpha)
 {
     // Calculates a gradient via central differences
     for (size_t index = 0; index <= N * 2; ++index)
@@ -80,10 +88,10 @@ void CalculateGradient(std::array<double, N * 2 + 1>& gradient, const std::array
         std::array<double, N * 2 + 1> coefficients = _coefficients;
 
         coefficients[index] = _coefficients[index] - c_epsilon;
-        double A = LossFunction(coefficients, data, columnIndices, valueIndex);
+        double A = LossFunction(coefficients, data, columnIndices, valueIndex, L1RegAlpha, L2RegAlpha);
 
         coefficients[index] = _coefficients[index] + c_epsilon;
-        double B = LossFunction(coefficients, data, columnIndices, valueIndex);
+        double B = LossFunction(coefficients, data, columnIndices, valueIndex, L1RegAlpha, L2RegAlpha);
 
         gradient[index] = (B - A) / (2.0f * c_epsilon);
     }

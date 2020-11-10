@@ -41,11 +41,14 @@ int main(int argc, char** argv)
     Model3(train, test);
     Model4(train, test);
     Model5(train, test);
+
+    Model7(train, test);
 #endif
 
 
     Model6(train, test);
-    Model7(train, test);
+    //Model8(train, test);
+    Model9(train, test);
 
     return 0;
 }

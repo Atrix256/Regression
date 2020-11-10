@@ -151,6 +151,8 @@
     <ClCompile Include="model5.cpp" />
     <ClCompile Include="model6.cpp" />
     <ClCompile Include="model7.cpp" />
+    <ClCompile Include="model8.cpp" />
+    <ClCompile Include="model9.cpp" />
     <ClCompile Include="utils.cpp" />
   </ItemGroup>
   <ItemGroup>
