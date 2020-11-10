@@ -2,7 +2,7 @@
 static const double c_epsilon = 0.001f;
 
 // The learning rate, for gradient descent
-double c_learningRate = 1.0f;
+static double c_learningRate = 1.0f;
 
 // how many steps of gradient descent are done
 static const size_t c_gradientDescentSteps = 1000;
@@ -110,9 +110,8 @@ void Model6(const CSV& train, const CSV& test)
             loss = newLoss;
             coefficients = newCoefficients;
 
-            // if it didn't increase the loss function, grow it for next iteration
-            if (!newLossWasLarger)
-                c_learningRate *= 10.0f;
+            // grow the learning rate for next iteration
+            c_learningRate *= 10.0f;
 
             if (loss < bestLoss)
             {
@@ -149,3 +148,5 @@ TODO: model6 is quadratic, model7 is cubic.
 TODO: 8,9,10 = ridge, lasso, elastic of quadratic?
 TODO: USE MSE for all other fits too, not RMSE!
 */
+
+// 1414.84    1190.03
