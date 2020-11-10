@@ -3,6 +3,7 @@
 
 int main(int argc, char** argv)
 {
+    // load the training and test data
     CSV train;
     if (!LoadCSV("data/train.csv", train))
     {
@@ -17,11 +18,32 @@ int main(int argc, char** argv)
         return 1;
     }
 
+    // process the Outlet_Establishment_Year column to be smaller numbers, so fewer numerical concerns
+    {
+        int yearIndex = train.GetHeaderIndex("Outlet_Establishment_Year");
+        if (yearIndex == -1 || test.GetHeaderIndex("Outlet_Establishment_Year") != yearIndex)
+        {
+            printf("Couldn't find Outlet_Establishment_Year column.\n");
+            return 1;
+        }
+
+        for (auto& row : train.data)
+            row[yearIndex] = 2020.0f - row[yearIndex];
+
+        for (auto& row : test.data)
+            row[yearIndex] = 2020.0f - row[yearIndex];
+    }
+
+    // TODO: TEMP!
+#if 0
     Model1(train, test);
     Model2(train, test);
     Model3(train, test);
     Model4(train, test);
     Model5(train, test);
+#endif
+
+    Model6(train, test);
 
     return 0;
 }
@@ -55,5 +77,12 @@ BLOG:
 * adjusted R squared went down... means the model got more complex w/o benefit.
 * lots slower! could probably be optimized.
 * fit isn't as good. it seems to want to go deeper (step count) instead of wider (population)
+
+* Model6 - quadratic fit with Outlet_Establishment_Year and Item_MRP
+* I had problems with raw year. maybe numbers too large? replaced year column with 2020-year. things cleaned up.
+
+* talk about some good points about variance / bias from that post. like high bias, low variance is underfitting
+
+! you weren't descending with all gradient indices, oops! you fixed it though, so the above info about accuracy may not be correct
 
 */

@@ -149,10 +149,12 @@
     <ClCompile Include="model3.cpp" />
     <ClCompile Include="model4.cpp" />
     <ClCompile Include="model5.cpp" />
+    <ClCompile Include="model6.cpp" />
     <ClCompile Include="utils.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="linearfit.h" />
+    <ClInclude Include="quadraticfit.h" />
     <ClInclude Include="utils.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

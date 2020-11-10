@@ -51,3 +51,4 @@ void Model2(const CSV& train, const CSV& test);
 void Model3(const CSV& train, const CSV& test);
 void Model4(const CSV& train, const CSV& test);
 void Model5(const CSV& train, const CSV& test);
+void Model6(const CSV& train, const CSV& test);

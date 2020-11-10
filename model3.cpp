@@ -2,10 +2,10 @@
 static const float c_epsilon = 0.01f;
 
 // The learning rate, for gradient descent
-static const float c_learningRate = 0.001f;
+static const float c_learningRate = 0.01f;
 
 // how many steps of gradient descent are done
-static const size_t c_gradientDescentSteps = 100;
+static const size_t c_gradientDescentSteps = 500;
 
 // how many times should it pick a random set of parameters and do gradient descent?
 static const size_t c_population = 100;
@@ -89,7 +89,7 @@ void Model3(const CSV& train, const CSV& test)
             CalculateGradient(gradient, coefficients, train, columnIndices, salesIndex);
 
             // descend
-            for (size_t index = 0; index < 3; ++index)
+            for (size_t index = 0; index < gradient.size(); ++index)
                 coefficients[index] -= gradient[index] * c_learningRate;
 
             // keep the best coefficients seen

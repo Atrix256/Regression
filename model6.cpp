@@ -5,30 +5,30 @@ static const float c_epsilon = 0.01f;
 static const float c_learningRate = 0.01f;
 
 // how many steps of gradient descent are done
-static const size_t c_gradientDescentSteps = 500;
+static const size_t c_gradientDescentSteps = 1000;
 
 // how many times should it pick a random set of parameters and do gradient descent?
 static const size_t c_population = 100;
 
 #include "utils.h"
-#include "linearfit.h"
+#include "quadraticfit.h"
+#include <array>
 #include <random>
 
 /*
 
-Model 4:
+Model 3:
 
-f(x,y) = Ax + By + Cz + D
+f(x,y) = Ax^2 + Bx + Cy^2 + Dy + E
 
-x and y are establishment year, MRP (price) and item weight
-A, B, C and D are coefficients that were learned through gradient descent.
+x and y are establishment year and MRP (price)
+A, B, C, D and E are coefficients that were learned through gradient descent.
 
 */
 
-
-void Model4(const CSV& train, const CSV& test)
+void Model6(const CSV& train, const CSV& test)
 {
-    printf(__FUNCTION__ "() - Linear fit of Item_Outlet_Sales based on Outlet_Establishment_Year, Item_MRP and Item_Weight\n");
+    printf(__FUNCTION__ "() - Quadratic fit of Item_Outlet_Sales based on Outlet_Establishment_Year and Item_MRP\n");
 
     // get the columns of interest
     int salesIndex = train.GetHeaderIndex("Item_Outlet_Sales");
@@ -52,21 +52,14 @@ void Model4(const CSV& train, const CSV& test)
         return;
     }
 
-    int WeightIndex = train.GetHeaderIndex("Item_Weight");
-    if (WeightIndex == -1 || test.GetHeaderIndex("Item_Weight") != WeightIndex)
-    {
-        printf("Couldn't find Item_Weight column.\n");
-        return;
-    }
-
     // do gradient descent
     // NOTE: this does the same random numbers every program run, so is deterministic, as written.
     std::mt19937 rng;
-    std::uniform_real_distribution<float> dist(-50.0f, 50.0f);
-    std::array<int, 3> columnIndices = { yearIndex, MRPIndex, WeightIndex };
+    std::uniform_real_distribution<float> dist(-1.0f, 1.0f);
+    std::array<int, 2> columnIndices = { yearIndex, MRPIndex };
 
     float bestLoss = FLT_MAX;
-    std::array<float, 4> bestCoefficients;
+    std::array<float, 5> bestCoefficients;
     size_t bestCoefficientsPopulationIndex = 0;
     size_t bestCoefficientsStepIndex = 0;
 
@@ -74,7 +67,7 @@ void Model4(const CSV& train, const CSV& test)
     for (size_t populationIndex = 0; populationIndex < c_population; ++populationIndex)
     {
         // random initialize some starting coefficients
-        std::array<float, 4> coefficients;
+        std::array<float, 5> coefficients;
         for (float& f : coefficients)
             f = dist(rng);
 
@@ -92,7 +85,7 @@ void Model4(const CSV& train, const CSV& test)
         for (int i = 0; i < c_gradientDescentSteps; ++i)
         {
             // calculate the gradient
-            std::array<float, 4> gradient;
+            std::array<float, 5> gradient;
             CalculateGradient(gradient, coefficients, train, columnIndices, salesIndex);
 
             // descend
@@ -100,7 +93,7 @@ void Model4(const CSV& train, const CSV& test)
                 coefficients[index] -= gradient[index] * c_learningRate;
 
             // keep the best coefficients seen
-            float loss = LossFunction(coefficients, train, columnIndices, salesIndex);
+            loss = LossFunction(coefficients, train, columnIndices, salesIndex);
             if (loss < bestLoss)
             {
                 bestLoss = loss;
@@ -116,10 +109,20 @@ void Model4(const CSV& train, const CSV& test)
     float Test_RMSE = LossFunction(bestCoefficients, test, columnIndices, salesIndex);
 
     // Report results
-    printf("  Best coefficients = %0.4f, %0.4f, %0.4f, %0.4f  (from %zu:%zu)\n", bestCoefficients[0], bestCoefficients[1], bestCoefficients[2], bestCoefficients[3], bestCoefficientsPopulationIndex, bestCoefficientsStepIndex);
+    printf("  Best coefficients are from %zu:%zu\n", bestCoefficientsPopulationIndex, bestCoefficientsStepIndex);
+    int i = -1;
+    for (float f : bestCoefficients)
+    {
+        i++;
+        printf("    [%i]: %0.4f\n", i, f);
+    }
     printf("  test/train R^2 = %f  %f\n", RSquared(bestCoefficients, test, columnIndices, salesIndex), RSquared(bestCoefficients, train, columnIndices, salesIndex));
     printf("  test/train Adjusted R^2 = %f  %f\n", AdjustedRSquared(bestCoefficients, test, columnIndices, salesIndex), AdjustedRSquared(bestCoefficients, train, columnIndices, salesIndex));
     printf("  RMSE on training set: %0.2f\n", Train_RMSE);
     printf("  RMSE on test set: %0.2f\n\n", Test_RMSE);
 }
-
+/*
+TODO: best answer is at 46:0. that means gradient descent isn't improving things?!
+TODO: model6 is quadratic, model7 is cubic.
+TODO: 8,9,10 = ridge, lasso, elastic of quadratic?
+*/
