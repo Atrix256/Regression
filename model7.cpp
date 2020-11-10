@@ -5,28 +5,28 @@ static const double c_epsilon = 0.001f;
 static double c_learningRate = 1.0f;
 
 // how many steps of gradient descent are done
-static const size_t c_gradientDescentSteps = 1000;
+static const size_t c_gradientDescentSteps = 10000;
 
 // how many times should it pick a random set of parameters and do gradient descent?
-static const size_t c_population = 100;
+static const size_t c_population = 10;
 
 #include "utils.h"
-#include "quadraticfit.h"
+#include "cubicfit.h"
 #include <array>
 #include <random>
 
 /*
 
-Model 6:
+Model 7:
 
-f(x,y) = Ax^2 + Bx + Cy^2 + Dy + E
+f(x,y) = Ax^3 + Bx^2 + Cx + Dy^3 + Ey^2 + Fy + G
 
 x and y are establishment year and MRP (price)
-A, B, C, D and E are coefficients that were learned through gradient descent.
+A, B, C, D, E, F, G are coefficients that were learned through gradient descent.
 
 */
 
-void Model6(const CSV& train, const CSV& test)
+void Model7(const CSV& train, const CSV& test)
 {
     printf(__FUNCTION__ "() - Quadratic fit of Item_Outlet_Sales based on Outlet_Establishment_Year and Item_MRP\n");
 
@@ -59,7 +59,7 @@ void Model6(const CSV& train, const CSV& test)
     std::array<int, 2> columnIndices = { yearIndex, MRPIndex };
 
     double bestLoss = FLT_MAX;
-    std::array<double, 5> bestCoefficients;
+    std::array<double, 7> bestCoefficients;
     size_t bestCoefficientsPopulationIndex = 0;
     size_t bestCoefficientsStepIndex = 0;
 
@@ -67,7 +67,7 @@ void Model6(const CSV& train, const CSV& test)
     for (size_t populationIndex = 0; populationIndex < c_population; ++populationIndex)
     {
         // random initialize some starting coefficients
-        std::array<double, 5> coefficients;
+        std::array<double, 7> coefficients;
         for (double& f : coefficients)
             f = dist(rng);
 
@@ -85,13 +85,13 @@ void Model6(const CSV& train, const CSV& test)
         for (int i = 0; i < c_gradientDescentSteps; ++i)
         {
             // calculate the gradient
-            std::array<double, 5> gradient;
+            std::array<double, 7> gradient;
             CalculateGradient(gradient, coefficients, train, columnIndices, salesIndex);
 
             // do gradient descent with an adaptive learning rate to make sure it isn't increasing the loss function
             bool newLossWasLarger = false;
             double newLoss = 0.0f;
-            std::array<double, 5> newCoefficients;
+            std::array<double, 7> newCoefficients;
             do
             {
                 // descend
@@ -111,7 +111,7 @@ void Model6(const CSV& train, const CSV& test)
             coefficients = newCoefficients;
 
             // grow the learning rate for next iteration
-            c_learningRate *= 10.0f;
+            c_learningRate = 100.0f;
 
             if (loss < bestLoss)
             {
@@ -140,3 +140,6 @@ void Model6(const CSV& train, const CSV& test)
     printf("  RMSE on training set: %0.2f\n", sqrt(Train_MSE));
     printf("  RMSE on test set: %0.2f\n\n", sqrt(Test_MSE));
 }
+/*
+TODO: 8,9,10 = ridge, lasso, elastic of quadratic?
+*/

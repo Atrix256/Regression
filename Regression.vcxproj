@@ -150,9 +150,11 @@
     <ClCompile Include="model4.cpp" />
     <ClCompile Include="model5.cpp" />
     <ClCompile Include="model6.cpp" />
+    <ClCompile Include="model7.cpp" />
     <ClCompile Include="utils.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="cubicfit.h" />
     <ClInclude Include="linearfit.h" />
     <ClInclude Include="quadraticfit.h" />
     <ClInclude Include="utils.h" />

@@ -9,10 +9,12 @@
     <ClCompile Include="model4.cpp" />
     <ClCompile Include="model5.cpp" />
     <ClCompile Include="model6.cpp" />
+    <ClCompile Include="model7.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="utils.h" />
     <ClInclude Include="linearfit.h" />
     <ClInclude Include="quadraticfit.h" />
+    <ClInclude Include="cubicfit.h" />
   </ItemGroup>
 </Project>
