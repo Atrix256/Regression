@@ -1,8 +1,8 @@
 // This is for central differences, for calculating the gradient
-static const float c_epsilon = 0.01f;
+static const float c_epsilon = 0.001f;
 
 // The learning rate, for gradient descent
-static const float c_learningRate = 0.01f;
+static const float c_learningRate = 0.0001f;
 
 // how many steps of gradient descent are done
 static const size_t c_gradientDescentSteps = 1000;
@@ -122,7 +122,9 @@ void Model6(const CSV& train, const CSV& test)
     printf("  RMSE on test set: %0.2f\n\n", Test_RMSE);
 }
 /*
+TODO: maybe we should use MSE instead of RMSE because it makes hills steeper?
 TODO: best answer is at 46:0. that means gradient descent isn't improving things?!
 TODO: model6 is quadratic, model7 is cubic.
 TODO: 8,9,10 = ridge, lasso, elastic of quadratic?
+TODO: USE MSE for all, not RMSE!
 */

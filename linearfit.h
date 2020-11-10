@@ -3,6 +3,16 @@
 #include <array>
 #include "utils.h"
 
+
+template <size_t N>
+float Evaluate(const std::array<float, N + 1>& coefficients, const std::vector<float>& row, const std::array<int, N>& columnIndices)
+{
+    float ret = coefficients[N];
+    for (size_t i = 0; i < N; ++i)
+        ret += coefficients[i] * row[columnIndices[i]];
+    return ret;
+}
+
 template <size_t N>
 float RSquared(const std::array<float, N + 1>& coefficients, const CSV& data, const std::array<int, N>& columnIndices, int valueIndex)
 {
@@ -16,9 +26,7 @@ float RSquared(const std::array<float, N + 1>& coefficients, const CSV& data, co
     {
         float actual = row[valueIndex];
 
-        float estimate = coefficients[N];
-        for (size_t index = 0; index < N; ++index)
-            estimate += row[columnIndices[index]] * coefficients[index];
+        float estimate = Evaluate(coefficients, row, columnIndices);
 
         numerator += sqr(actual - estimate);
         denominator += sqr(actual - averageSales.average);
@@ -49,9 +57,7 @@ float LossFunction(const std::array<float, N + 1>& coefficients, const CSV& data
 
     for (const auto& row : data.data)
     {
-        float estimate = coefficients[N];
-        for (size_t index = 0; index < N; ++index)
-            estimate += row[columnIndices[index]] * coefficients[index];
+        float estimate = Evaluate(coefficients, row, columnIndices);
 
         float actual = row[valueIndex];
 

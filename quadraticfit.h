@@ -55,7 +55,6 @@ float AdjustedRSquared(const std::array<float, N * 2 + 1>& coefficients, const C
 template <size_t N>
 float LossFunction(const std::array<float, N * 2 + 1>& coefficients, const CSV& data, const std::array<int, N>& columnIndices, int valueIndex)
 {
-    // Our loss function is RMSE
     Average MSE;
 
     for (const auto& row : data.data)
@@ -69,7 +68,7 @@ float LossFunction(const std::array<float, N * 2 + 1>& coefficients, const CSV& 
         MSE.AddSample(error * error);
     }
 
-    return sqrtf(MSE.average);
+    return MSE.average;
 }
 
 template <size_t N>
