@@ -141,12 +141,7 @@ void Model6(const CSV& train, const CSV& test)
     printf("  RMSE on test set: %0.2f\n\n", sqrt(Test_MSE));
 }
 /*
-TODO: add an xy term here
-TODO: model 5's winner is a starting initial condition too... maybe also do adaptive learning rate there? maybe do it for all models?
-
-TODO: model6 is quadratic, model7 is cubic.
+TODO: make model7 be cubic.
 TODO: 8,9,10 = ridge, lasso, elastic of quadratic?
 TODO: USE MSE for all other fits too, not RMSE!
 */
-
-// 1414.84    1190.03

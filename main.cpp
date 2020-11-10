@@ -43,6 +43,7 @@ int main(int argc, char** argv)
     Model5(train, test);
 #endif
 
+
     Model6(train, test);
 
     return 0;
@@ -80,6 +81,8 @@ BLOG:
 
 * Model6 - quadratic fit with Outlet_Establishment_Year and Item_MRP
 * I had problems with raw year. maybe numbers too large? replaced year column with 2020-year. things cleaned up.
+* also had to add adaptive step size
+* could also have a xy term, i tried it and it made things worse ::shrug::
 
 * talk about some good points about variance / bias from that post. like high bias, low variance is underfitting
 
