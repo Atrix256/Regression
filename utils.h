@@ -4,12 +4,12 @@
 #include <string>
 #include <unordered_map>
 
-inline float Lerp(float A, float B, float t)
+inline double Lerp(double A, double B, double t)
 {
     return A * (1.0f - t) + B * t;
 }
 
-inline float sqr(float x)
+inline double sqr(double x)
 {
     return x * x;
 }
@@ -17,7 +17,7 @@ inline float sqr(float x)
 struct CSV
 {
     std::vector<std::string> headers;
-    std::vector<std::vector<float>> data;
+    std::vector<std::vector<double>> data;
 
     int GetHeaderIndex(const char* h) const
     {
@@ -35,12 +35,12 @@ struct CSV
 struct Average
 {
     int samples = 0;
-    float average = 0.0f;
+    double average = 0.0f;
 
-    void AddSample(float sample)
+    void AddSample(double sample)
     {
         samples++;
-        average = Lerp(average, sample, 1.0f / float(samples));
+        average = Lerp(average, sample, 1.0f / double(samples));
     }
 };
 

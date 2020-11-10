@@ -35,7 +35,7 @@ int main(int argc, char** argv)
     }
 
     // TODO: TEMP!
-#if 0
+#if 1
     Model1(train, test);
     Model2(train, test);
     Model3(train, test);
@@ -67,7 +67,7 @@ BLOG:
 * if doing multiple and keeping the best, using low discrepancy sequences or blue noise to initialize coefficients would be better than pure random white noise by having better coverage over the sampling space.
 * also called "orthogonal initialization"
 * Loss function is MSE/2. the 2 doesn't change anything, but whatever :P
-*  actually, we'll use RMSE to make smaller magnitude numbers for the same result. less to worry about w/ floating point though.
+*  actually, we'll use RMSE to make smaller magnitude numbers for the same result. less to worry about w/ doubleing point though.
 * get gradient numerically with central differences
 * talk about R^2 and adjusted R^2
 

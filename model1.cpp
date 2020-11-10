@@ -31,19 +31,19 @@ void Model1(const CSV& train, const CSV& test)
     Average Train_MSE;
     for (const auto& row : train.data)
     {
-        float error = row[salesIndex] - averageSales.average;
+        double error = row[salesIndex] - averageSales.average;
         Train_MSE.AddSample(error * error);
     }
-    float Train_RMSE = sqrtf(Train_MSE.average);
+    double Train_RMSE = sqrt(Train_MSE.average);
 
     // calculate mean squared error (average squared error) and root mean squared error from test data
     Average Test_MSE;
     for (const auto& row : test.data)
     {
-        float error = row[salesIndex] - averageSales.average;
+        double error = row[salesIndex] - averageSales.average;
         Test_MSE.AddSample(error * error);
     }
-    float Test_RMSE = sqrtf(Test_MSE.average);
+    double Test_RMSE = sqrt(Test_MSE.average);
 
     // report results
     printf("  Mean of Item_Outlet_Sales: %0.2f\n", averageSales.average);

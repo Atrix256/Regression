@@ -45,44 +45,44 @@ void Model2(const CSV& train, const CSV& test)
     }
 
     // calculate average sales from training data for each Outlet_Location_Type
-    std::unordered_map<float, Average> averageSalesMap;
+    std::unordered_map<double, Average> averageSalesMap;
     for (const auto& row : train.data)
     {
-        float locationType = row[locationType1Index] * 4.0f + row[locationType2Index] * 2.0f + row[locationType1Index];
+        double locationType = row[locationType1Index] * 4.0f + row[locationType2Index] * 2.0f + row[locationType1Index];
         averageSalesMap[locationType].AddSample(row[salesIndex]);
     }
 
     // calculate mean squared error (average squared error) and root mean squared error from training data
     Average Train_MSE;
-    std::unordered_map<float, Average> Train_MSEs;
+    std::unordered_map<double, Average> Train_MSEs;
     for (const auto& row : train.data)
     {
-        float locationType = row[locationType1Index] * 4.0f + row[locationType2Index] * 2.0f + row[locationType1Index];
-        float error = row[salesIndex] - averageSalesMap[locationType].average;
+        double locationType = row[locationType1Index] * 4.0f + row[locationType2Index] * 2.0f + row[locationType1Index];
+        double error = row[salesIndex] - averageSalesMap[locationType].average;
         Train_MSEs[locationType].AddSample(error * error);
         Train_MSE.AddSample(error * error);
     }
-    float Train_RMSE = sqrtf(Train_MSE.average);
+    double Train_RMSE = sqrt(Train_MSE.average);
 
     // calculate mean squared error (average squared error) and root mean squared error from test data
     Average Test_MSE;
-    std::unordered_map<float, Average> Test_MSEs;
+    std::unordered_map<double, Average> Test_MSEs;
     for (const auto& row : test.data)
     {
-        float locationType = row[locationType1Index] * 4.0f + row[locationType2Index] * 2.0f + row[locationType1Index];
-        float error = row[salesIndex] - averageSalesMap[locationType].average;
+        double locationType = row[locationType1Index] * 4.0f + row[locationType2Index] * 2.0f + row[locationType1Index];
+        double error = row[salesIndex] - averageSalesMap[locationType].average;
         Test_MSEs[locationType].AddSample(error * error);
         Test_MSE.AddSample(error * error);
     }
-    float Test_RMSE = sqrtf(Test_MSE.average);
+    double Test_RMSE = sqrt(Test_MSE.average);
 
     // report results
     for (const auto it : averageSalesMap)
     {
         printf("  Item_Outlet_Sales %i  (%i samples)\n", (int)it.first, it.second.samples);
         printf("    Mean of Item_Outlet_Sales: %0.2f\n", it.second.average);
-        printf("    RMSE on training set: %0.2f\n", sqrtf(Train_MSEs[it.first].average));
-        printf("    RMSE on test set: %0.2f\n", sqrtf(Test_MSEs[it.first].average));
+        printf("    RMSE on training set: %0.2f\n", sqrt(Train_MSEs[it.first].average));
+        printf("    RMSE on test set: %0.2f\n", sqrt(Test_MSEs[it.first].average));
     }
     printf("  RMSE on training set: %0.2f\n", Train_RMSE);
     printf("  RMSE on test set: %0.2f\n\n", Test_RMSE);

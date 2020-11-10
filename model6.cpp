@@ -1,8 +1,8 @@
 // This is for central differences, for calculating the gradient
-static const float c_epsilon = 0.001f;
+static const double c_epsilon = 0.001f;
 
 // The learning rate, for gradient descent
-static const float c_learningRate = 0.0001f;
+double c_learningRate = 1.0f;
 
 // how many steps of gradient descent are done
 static const size_t c_gradientDescentSteps = 1000;
@@ -17,7 +17,7 @@ static const size_t c_population = 100;
 
 /*
 
-Model 3:
+Model 6:
 
 f(x,y) = Ax^2 + Bx + Cy^2 + Dy + E
 
@@ -55,11 +55,11 @@ void Model6(const CSV& train, const CSV& test)
     // do gradient descent
     // NOTE: this does the same random numbers every program run, so is deterministic, as written.
     std::mt19937 rng;
-    std::uniform_real_distribution<float> dist(-1.0f, 1.0f);
+    std::uniform_real_distribution<double> dist(-10.0f, 10.0f);
     std::array<int, 2> columnIndices = { yearIndex, MRPIndex };
 
-    float bestLoss = FLT_MAX;
-    std::array<float, 5> bestCoefficients;
+    double bestLoss = FLT_MAX;
+    std::array<double, 5> bestCoefficients;
     size_t bestCoefficientsPopulationIndex = 0;
     size_t bestCoefficientsStepIndex = 0;
 
@@ -67,12 +67,12 @@ void Model6(const CSV& train, const CSV& test)
     for (size_t populationIndex = 0; populationIndex < c_population; ++populationIndex)
     {
         // random initialize some starting coefficients
-        std::array<float, 5> coefficients;
-        for (float& f : coefficients)
+        std::array<double, 5> coefficients;
+        for (double& f : coefficients)
             f = dist(rng);
 
         // keep the best coefficients seen
-        float loss = LossFunction(coefficients, train, columnIndices, salesIndex);
+        double loss = LossFunction(coefficients, train, columnIndices, salesIndex);
         if (loss < bestLoss)
         {
             bestLoss = loss;
@@ -85,15 +85,35 @@ void Model6(const CSV& train, const CSV& test)
         for (int i = 0; i < c_gradientDescentSteps; ++i)
         {
             // calculate the gradient
-            std::array<float, 5> gradient;
+            std::array<double, 5> gradient;
             CalculateGradient(gradient, coefficients, train, columnIndices, salesIndex);
 
-            // descend
-            for (size_t index = 0; index < gradient.size(); ++index)
-                coefficients[index] -= gradient[index] * c_learningRate;
+            // do gradient descent with an adaptive learning rate to make sure it isn't increasing the loss function
+            bool newLossWasLarger = false;
+            double newLoss = 0.0f;
+            std::array<double, 5> newCoefficients;
+            do
+            {
+                // descend
+                for (size_t index = 0; index < gradient.size(); ++index)
+                    newCoefficients[index] = coefficients[index] - gradient[index] * c_learningRate;
 
-            // keep the best coefficients seen
-            loss = LossFunction(coefficients, train, columnIndices, salesIndex);
+                // keep the best coefficients seen
+                newLoss = LossFunction(newCoefficients, train, columnIndices, salesIndex);
+                if (newLoss >= loss)
+                {
+                    c_learningRate /= 10.0f;
+                    newLossWasLarger = true;
+                }
+            }
+            while (newLoss >= loss);
+            loss = newLoss;
+            coefficients = newCoefficients;
+
+            // if it didn't increase the loss function, grow it for next iteration
+            if (!newLossWasLarger)
+                c_learningRate *= 10.0f;
+
             if (loss < bestLoss)
             {
                 bestLoss = loss;
@@ -105,26 +125,27 @@ void Model6(const CSV& train, const CSV& test)
     }
 
     // calculate mean squared error (average squared error) and root mean squared error from training data
-    float Train_RMSE = LossFunction(bestCoefficients, train, columnIndices, salesIndex);
-    float Test_RMSE = LossFunction(bestCoefficients, test, columnIndices, salesIndex);
+    double Train_MSE = LossFunction(bestCoefficients, train, columnIndices, salesIndex);
+    double Test_MSE = LossFunction(bestCoefficients, test, columnIndices, salesIndex);
 
     // Report results
     printf("  Best coefficients are from %zu:%zu\n", bestCoefficientsPopulationIndex, bestCoefficientsStepIndex);
     int i = -1;
-    for (float f : bestCoefficients)
+    for (double f : bestCoefficients)
     {
         i++;
         printf("    [%i]: %0.4f\n", i, f);
     }
     printf("  test/train R^2 = %f  %f\n", RSquared(bestCoefficients, test, columnIndices, salesIndex), RSquared(bestCoefficients, train, columnIndices, salesIndex));
     printf("  test/train Adjusted R^2 = %f  %f\n", AdjustedRSquared(bestCoefficients, test, columnIndices, salesIndex), AdjustedRSquared(bestCoefficients, train, columnIndices, salesIndex));
-    printf("  RMSE on training set: %0.2f\n", Train_RMSE);
-    printf("  RMSE on test set: %0.2f\n\n", Test_RMSE);
+    printf("  RMSE on training set: %0.2f\n", sqrt(Train_MSE));
+    printf("  RMSE on test set: %0.2f\n\n", sqrt(Test_MSE));
 }
 /*
-TODO: maybe we should use MSE instead of RMSE because it makes hills steeper?
-TODO: best answer is at 46:0. that means gradient descent isn't improving things?!
+TODO: add an xy term here
+TODO: model 5's winner is a starting initial condition too... maybe also do adaptive learning rate there? maybe do it for all models?
+
 TODO: model6 is quadratic, model7 is cubic.
 TODO: 8,9,10 = ridge, lasso, elastic of quadratic?
-TODO: USE MSE for all, not RMSE!
+TODO: USE MSE for all other fits too, not RMSE!
 */
