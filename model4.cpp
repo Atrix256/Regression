@@ -2,7 +2,7 @@
 static const double c_epsilon = 0.01f;
 
 // The learning rate, for gradient descent
-static const double c_learningRate = 0.01f;
+static double c_learningRate = 1.0f;
 
 // how many steps of gradient descent are done
 static const size_t c_gradientDescentSteps = 500;
@@ -95,12 +95,31 @@ void Model4(const CSV& train, const CSV& test)
             std::array<double, 4> gradient;
             CalculateGradient(gradient, coefficients, train, columnIndices, salesIndex);
 
-            // descend
-            for (size_t index = 0; index < gradient.size(); ++index)
-                coefficients[index] -= gradient[index] * c_learningRate;
+            // do gradient descent with an adaptive learning rate to make sure it isn't increasing the loss function
+            bool newLossWasLarger = false;
+            double newLoss = 0.0f;
+            std::array<double, 4> newCoefficients;
+            do
+            {
+                // descend
+                for (size_t index = 0; index < gradient.size(); ++index)
+                    newCoefficients[index] = coefficients[index] - gradient[index] * c_learningRate;
+
+                // keep the best coefficients seen
+                newLoss = LossFunction(newCoefficients, train, columnIndices, salesIndex);
+                if (newLoss >= loss)
+                {
+                    c_learningRate /= 10.0f;
+                    newLossWasLarger = true;
+                }
+            } while (newLoss >= loss);
+            loss = newLoss;
+            coefficients = newCoefficients;
+
+            // grow the learning rate for next iteration
+            c_learningRate *= 10.0f;
 
             // keep the best coefficients seen
-            double loss = LossFunction(coefficients, train, columnIndices, salesIndex);
             if (loss < bestLoss)
             {
                 bestLoss = loss;
